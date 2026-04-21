@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     version="2.0">
+  <channel>
+    <title>NPR News Now</title>
+    <link>https://www.npr.org/podcasts/500005/npr-news-now</link>
+    <description>The latest news from NPR's correspondents.</description>
+    <itunes:image href="https://media.npr.org/assets/img/2018/08/02/nprnewsnow_podcasttile_sq-art.jpg"/>
+    <image><url>https://media.npr.org/assets/img/2018/08/02/nprnewsnow_podcasttile_sq-art.jpg</url></image>
+
+    <item>
+      <title>NPR News: 04-20-2026 4PM EDT</title>
+      <itunes:summary>Five-minute headlines from NPR.</itunes:summary>
+      <description><![CDATA[<p>Five-minute <b>headlines</b> from NPR.</p>]]></description>
+      <pubDate>Sun, 20 Apr 2026 20:00:00 -0000</pubDate>
+      <itunes:duration>4:58</itunes:duration>
+      <enclosure url="https://play.podtrac.com/npr-500005/npr.mc.tritondigital.com/NPR_500005/media/anon.npr-mp3/npr/newscasts/2026/04/20/20260420_newscasts_161234.mp3?awCollectionId=500005" length="1234567" type="audio/mpeg"/>
+      <itunes:image href="https://media.npr.org/assets/img/2018/08/02/nprnewsnow_podcasttile_sq-art.jpg"/>
+    </item>
+
+    <item>
+      <title>Planet Money presents: Why your coffee costs more</title>
+      <description>An exploration of the coffee supply chain.</description>
+      <pubDate>Sat, 19 Apr 2026 10:00:00 -0000</pubDate>
+      <itunes:duration>1:02:34</itunes:duration>
+      <enclosure url="https://play.podtrac.com/npr-510289/media.npr.org/anon.npr-mp3/npr/pmoney/2026/04/20260419_pmoney_coffee.mp3" length="9999999" type="audio/mpeg"/>
+    </item>
+
+    <item>
+      <title>A quick indicator</title>
+      <description>Short episode.</description>
+      <pubDate>Fri, 18 Apr 2026 10:00:00 -0000</pubDate>
+      <itunes:duration>754</itunes:duration>
+      <enclosure url="https://play.podtrac.com/npr-510325/media.npr.org/anon.npr-mp3/npr/ind/2026/04/20260418_ind_quick.mp3" length="500000" type="audio/mpeg"/>
+    </item>
+
+    <item>
+      <title>Older episode that should NOT appear</title>
+      <description>Too far back.</description>
+      <pubDate>Thu, 17 Apr 2026 10:00:00 -0000</pubDate>
+      <itunes:duration>300</itunes:duration>
+      <enclosure url="https://play.podtrac.com/npr-500005/older.mp3" length="100000" type="audio/mpeg"/>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,11 @@
+name = "podvision-rss-proxy"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+CACHE_TTL = "3600"
+
+# Optional: KV for persistent caching
+# [[kv_namespaces]]
+# binding = "RSS_CACHE"
+# id = "your-kv-namespace-id"
