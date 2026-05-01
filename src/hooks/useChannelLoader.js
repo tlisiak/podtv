@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react';
 
-const WORKER_URL = import.meta.env.VITE_WORKER_URL || 'http://localhost:8787';
+const ENV_WORKER_URL = import.meta.env.VITE_WORKER_URL;
 
-async function fetchFeed(rssUrl) {
+if (import.meta.env.PROD && !ENV_WORKER_URL) {
+  throw new Error(
+    'VITE_WORKER_URL must be set at build time. Set it to the deployed Cloudflare Worker URL (e.g. https://podvision-rss-proxy.example.workers.dev).'
+  );
+}
+
+const WORKER_URL = ENV_WORKER_URL || 'http://localhost:8787';
+
+async function fetchFeed(rssUrl, signal) {
   const url = `${WORKER_URL}/rss?url=${encodeURIComponent(rssUrl)}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { signal });
   if (!res.ok) throw new Error(`Worker ${res.status}`);
   const body = await res.json();
   if (body.error) throw new Error(body.error);
@@ -22,14 +30,18 @@ export function useChannelLoader(channel) {
 
   useEffect(() => {
     if (!channel) return;
-    let cancelled = false;
+    const ctrl = new AbortController();
 
     setState('loading');
     setError(null);
 
-    Promise.allSettled(channel.shows.map((show) => fetchFeed(show.rss).then((feed) => ({ show, feed }))))
+    Promise.allSettled(
+      channel.shows.map((show) =>
+        fetchFeed(show.rss, ctrl.signal).then((feed) => ({ show, feed }))
+      )
+    )
       .then((results) => {
-        if (cancelled) return;
+        if (ctrl.signal.aborted) return;
         const loaded = [];
         for (const r of results) {
           if (r.status === 'fulfilled' && r.value.feed.episodes?.[0]) {
@@ -46,14 +58,12 @@ export function useChannelLoader(channel) {
         setState('ok');
       })
       .catch((e) => {
-        if (cancelled) return;
+        if (ctrl.signal.aborted) return;
         setError(String(e?.message || e));
         setState('err');
       });
 
-    return () => {
-      cancelled = true;
-    };
+    return () => ctrl.abort();
   }, [channel?.id]);
 
   return { state, loadedShows, error };

@@ -1,10 +1,9 @@
 const PX_PER_MIN = 8;
 const GUIDE_W = 180 * PX_PER_MIN;
-const NOW_X = 30 * PX_PER_MIN;
 
-export default function EpisodeBlock({ block, nowMs, color, onClick }) {
-  const minutesFromNow = (block.startMs - nowMs) / 60_000;
-  const rawLeft = NOW_X + minutesFromNow * PX_PER_MIN;
+export default function EpisodeBlock({ block, gridStartMs, color, onClick }) {
+  const minutesFromGridStart = (block.startMs - gridStartMs) / 60_000;
+  const rawLeft = minutesFromGridStart * PX_PER_MIN;
   const rawRight = rawLeft + ((block.endMs - block.startMs) / 60_000) * PX_PER_MIN;
   const left = Math.max(rawLeft, 0);
   const width = Math.min(rawRight, GUIDE_W) - left;

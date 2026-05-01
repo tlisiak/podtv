@@ -3,7 +3,7 @@ import { useChannelLoader } from '../hooks/useChannelLoader.js';
 import { buildSchedule, getVisibleBlocks } from '../lib/schedule.js';
 import EpisodeBlock from './EpisodeBlock.jsx';
 
-export default function ChannelRow({ channel, nowMs, selected, onSelect, onScheduleChange }) {
+export default function ChannelRow({ channel, nowMs, gridStartMs, selected, onSelect, onScheduleChange }) {
   const { state, loadedShows, error } = useChannelLoader(channel);
 
   const schedule = useMemo(
@@ -12,7 +12,7 @@ export default function ChannelRow({ channel, nowMs, selected, onSelect, onSched
   );
 
   useEffect(() => {
-    if (schedule) onScheduleChange?.(channel.id, schedule);
+    onScheduleChange?.(channel.id, schedule);
   }, [schedule, channel.id, onScheduleChange]);
 
   const blocks = schedule ? getVisibleBlocks(schedule, { nowMs }) : [];
@@ -27,6 +27,8 @@ export default function ChannelRow({ channel, nowMs, selected, onSelect, onSched
         onClick={() => onSelect?.(channel.id)}
         role="button"
         tabIndex={0}
+        aria-pressed={selected || undefined}
+        aria-label={`Channel ${channel.ch} ${channel.name}, ${channel.label}`}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -37,7 +39,11 @@ export default function ChannelRow({ channel, nowMs, selected, onSelect, onSched
         <div className="channel-num">CH {channel.ch}</div>
         <div className="channel-name">{channel.name}</div>
         <div className="channel-label">{channel.label}</div>
-        <div className={`channel-status ${statusClass}`} title={error || ''}>
+        <div
+          className={`channel-status ${statusClass}`}
+          aria-live="polite"
+          title={error || ''}
+        >
           {statusLabel}
         </div>
       </div>
@@ -47,7 +53,7 @@ export default function ChannelRow({ channel, nowMs, selected, onSelect, onSched
             <EpisodeBlock
               key={`${channel.id}-${i}-${block.startMs}`}
               block={block}
-              nowMs={nowMs}
+              gridStartMs={gridStartMs}
               color={channel.color}
               onClick={() => onSelect?.(channel.id)}
             />

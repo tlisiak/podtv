@@ -1,44 +1,66 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+/**
+ * Manages a single <audio> element. Returns memoized actions plus reactive
+ * state. `tuneIn` seeks to an offset once the media is ready; `error` surfaces
+ * failures so the UI can show them instead of swallowing them.
+ */
 export function useAudioPlayer() {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-
-  if (!audioRef.current && typeof Audio !== 'undefined') {
-    audioRef.current = new Audio();
-    audioRef.current.preload = 'auto';
-  }
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const a = audioRef.current;
-    if (!a) return;
-    const onPlay = () => setIsPlaying(true);
+    if (typeof Audio === 'undefined') return;
+    const a = new Audio();
+    a.preload = 'auto';
+    audioRef.current = a;
+
+    const onPlay = () => {
+      setIsPlaying(true);
+      setError(null);
+    };
     const onPause = () => setIsPlaying(false);
     const onTime = () => setCurrentTime(a.currentTime || 0);
     const onMeta = () => setDuration(a.duration || 0);
+    const onError = () => {
+      const code = a.error?.code;
+      const map = {
+        1: 'Playback aborted',
+        2: 'Network error — try again',
+        3: 'Audio decode error',
+        4: 'Audio source not supported',
+      };
+      setError(map[code] || 'Audio error');
+      setIsPlaying(false);
+    };
+
     a.addEventListener('play', onPlay);
     a.addEventListener('pause', onPause);
     a.addEventListener('timeupdate', onTime);
     a.addEventListener('loadedmetadata', onMeta);
     a.addEventListener('durationchange', onMeta);
+    a.addEventListener('error', onError);
+
     return () => {
       a.removeEventListener('play', onPlay);
       a.removeEventListener('pause', onPause);
       a.removeEventListener('timeupdate', onTime);
       a.removeEventListener('loadedmetadata', onMeta);
       a.removeEventListener('durationchange', onMeta);
+      a.removeEventListener('error', onError);
+      a.pause();
+      a.src = '';
+      audioRef.current = null;
     };
   }, []);
 
-  /**
-   * Tune in: set src and seek to the current position within the on-air episode.
-   * offsetSecs = (now - episode.startSecs) — how far into the episode we are.
-   */
-  function tuneIn(audioUrl, offsetSecs, autoplay = true) {
+  const tuneIn = useCallback((audioUrl, offsetSecs, autoplay = true) => {
     const a = audioRef.current;
-    if (!a) return;
+    if (!a || !audioUrl) return;
+    setError(null);
     if (a.src !== audioUrl) {
       a.src = audioUrl;
       a.load();
@@ -50,12 +72,12 @@ export function useAudioPlayer() {
           a.currentTime = offsetSecs;
         }
         if (autoplay) {
-          a.play().catch(() => {
-            /* user gesture required — caller handles */
+          a.play().catch((e) => {
+            if (e?.name !== 'NotAllowedError') setError(String(e?.message || e));
           });
         }
       } catch {
-        /* ignore */
+        /* ignore transient seek errors; audio element will emit 'error' if fatal */
       }
     };
 
@@ -68,21 +90,35 @@ export function useAudioPlayer() {
       };
       a.addEventListener('canplay', once, { once: true });
     }
-  }
+  }, []);
 
-  function toggle() {
+  const toggle = useCallback(() => {
     const a = audioRef.current;
     if (!a || !a.src) return;
-    if (a.paused) a.play().catch(() => {});
-    else a.pause();
-  }
+    if (a.paused) {
+      a.play().catch((e) => {
+        if (e?.name !== 'NotAllowedError') setError(String(e?.message || e));
+      });
+    } else {
+      a.pause();
+    }
+  }, []);
 
-  function seekRelative(deltaSecs) {
+  const seekRelative = useCallback((deltaSecs) => {
     const a = audioRef.current;
     if (!a || !a.src) return;
     const t = (a.currentTime || 0) + deltaSecs;
     a.currentTime = Math.max(0, t);
-  }
+  }, []);
 
-  return { audio: audioRef.current, isPlaying, currentTime, duration, tuneIn, toggle, seekRelative };
+  const actions = useMemo(() => ({ tuneIn, toggle, seekRelative }), [tuneIn, toggle, seekRelative]);
+
+  return {
+    ...actions,
+    audioRef,
+    isPlaying,
+    currentTime,
+    duration,
+    error,
+  };
 }

@@ -283,17 +283,16 @@
   text-overflow: ellipsis;
 }
 
-/* NOW vertical line */
+/* NOW vertical line (left set inline from JS) */
 .now-line {
   position: absolute;
   top: var(--time-header-h);
   bottom: 0;
-  left: calc(var(--channel-col-w) + var(--now-x));
   width: 2px;
   background: var(--accent-now);
   box-shadow: 0 0 10px rgba(255, 122, 0, 0.55);
   pointer-events: none;
-  z-index: 10;
+  z-index: 25;
 }
 .now-line::before {
   content: 'NOW';
@@ -353,6 +352,23 @@
   background: var(--navy-mid);
   object-fit: cover;
   flex: none;
+}
+.np-art-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  color: var(--white-dim);
+}
+
+.np-error {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-red);
+  letter-spacing: 0.05em;
 }
 
 .np-meta {
@@ -480,4 +496,74 @@
 .platform-link:hover {
   color: var(--white);
   border-color: var(--navy-selected);
+}
+
+/* ─── Error boundary ─────────────────────────────────────────── */
+.error-shell {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 24px;
+}
+.error-card {
+  max-width: 420px;
+  padding: 24px 28px;
+  background: var(--navy-dark);
+  border: 1px solid var(--navy-mid);
+  border-radius: 6px;
+  text-align: center;
+}
+.error-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-red);
+  margin-bottom: 8px;
+}
+.error-msg {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--white-dim);
+  margin-bottom: 16px;
+  word-break: break-word;
+}
+
+/* ─── Responsive (phones / narrow tablets) ──────────────────── */
+@media (max-width: 720px) {
+  .topbar {
+    padding: 0 12px;
+    gap: 10px;
+  }
+  .logo {
+    font-size: 18px;
+  }
+  .channel-name {
+    font-size: 13px;
+  }
+  .channel-label {
+    font-size: 9px;
+  }
+  .channel-status {
+    display: none;
+  }
+  .now-playing {
+    grid-template-columns: auto 48px 1fr;
+    grid-template-rows: auto auto;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .np-art {
+    width: 48px;
+    height: 48px;
+  }
+  .np-controls,
+  .platforms {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+  .np-show {
+    font-size: 14px;
+  }
 }
